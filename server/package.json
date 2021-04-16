@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-media-server": "^2.2.4",
+    "nodemon": "^2.0.7"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon mediaserver.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
