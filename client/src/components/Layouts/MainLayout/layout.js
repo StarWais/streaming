@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styles from './styles';
 import { Container, Grid, Typography } from '@material-ui/core';
 import { StreamsContext } from '../../../context/StreamsContext';
@@ -9,20 +9,21 @@ import axios from 'axios';
 export default function Layout() {
   const classes = styles();
   const { streams, setStreams } = useContext(StreamsContext);
+  const [error, setError] = useState('');
   useEffect(() => {
     axios
       .get(
         `${process.env.REACT_APP_SERVER || 'http://localhost'}:${
-          process.env.REACT_APP_MEDIA_PORT || '8000'
-        }/api/streams`
+          process.env.REACT_APP_SERVER_PORT || '5000'
+        }/streams/info`
       )
       .then((res) => {
-        if (JSON.stringify(res.data) === '{}') {
-          return;
+        if (res.status === 200) {
+          setStreams(res.data.streams);
         }
-        if (Object.keys(res.data['live']).length > 0) {
-          setStreams(Object.values(res.data['live']));
-        }
+      })
+      .catch((err) => {
+        setError(err.response.data.error);
       });
   }, [setStreams]);
   return (
@@ -33,7 +34,7 @@ export default function Layout() {
             <Header count={streams.length} />
             <Grid container direction="column" justify="center">
               {streams.map((stream) => (
-                <Grid item key={stream?.publisher?.stream}>
+                <Grid item key={stream.id}>
                   <Card stream={stream} />
                 </Grid>
               ))}
@@ -41,7 +42,7 @@ export default function Layout() {
           </>
         </Container>
       )}
-      {streams.length === 0 && (
+      {error && (
         <Grid
           container
           justify="center"
@@ -54,7 +55,7 @@ export default function Layout() {
               variant="h2"
               className={classes.nostreamsText}
             >
-              No streams availiable right now
+              {error}
             </Typography>
           </Grid>
         </Grid>

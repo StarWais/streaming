@@ -1,45 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './styles';
-import { Paper, Grid, Typography } from '@material-ui/core';
-import { ReactFlvPlayer } from 'react-flv-player';
+import { Paper, Grid, Typography, IconButton } from '@material-ui/core';
+import { PlayArrow } from '@material-ui/icons';
+import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
 
 export default function Card({ stream }) {
+  const [ago, setAgo] = useState(null);
+  const { id, created, thumbnail } = stream;
   const classes = styles();
-  const { publisher } = stream;
-  const { video } = publisher;
+  useEffect(() => {
+    const timer = setInterval(
+      () => setAgo(<Moment fromNow>{created}</Moment>),
+      1000
+    );
+    return () => clearInterval(timer);
+  }, [created]);
   return (
     <Paper className={classes.paper}>
-      <Grid container direction="column">
-        {!publisher && (
+      <Grid container direction="column" justify="center" alignItems="center">
+        <Grid item className={classes.wrapper}>
+          <img
+            src={`data:image/jpeg;base64,${thumbnail}`}
+            alt="stream_preview"
+            className={classes.thumbnail}
+          />
+          <IconButton
+            component={Link}
+            to={`/streams/${id}`}
+            className={classes.iconWrapper}
+          >
+            <PlayArrow className={classes.icon} />
+          </IconButton>
+        </Grid>
+        {ago && (
           <Grid item>
-            <Typography align="center">This stream probably ended</Typography>
+            <Typography variant="body1" align="center">
+              Stream started {ago}
+            </Typography>
           </Grid>
-        )}
-        {publisher && (
-          <>
-            <Grid item>
-              <ReactFlvPlayer
-                url={`${process.env.REACT_APP_SERVER || 'http://localhost'}:${
-                  process.env.REACT_APP_MEDIA_PORT || '8000'
-                }/live/${publisher.stream}.flv`}
-                height="100%"
-                width="100%"
-                isMuted={true}
-              />
-            </Grid>
-            <Grid item>
-              <Typography variant="body1" align="center">
-                Stream started{' '}
-                <Moment fromNow>{publisher.connectCreated}</Moment>
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="body1" align="center">
-                Stream resulution is {video.width}x{video.height}
-              </Typography>
-            </Grid>
-          </>
         )}
       </Grid>
     </Paper>
