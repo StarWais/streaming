@@ -26,22 +26,39 @@ export default function Layout() {
       });
   }, [setStreams]);
   return (
-    <Container maxWidth="lg">
-      {streams && (
-        <>
-          <Header count={streams.length} />
-          <Grid container direction="column" justify="center">
-            {streams.map((stream) => (
-              <Grid item key={stream?.publisher?.stream}>
-                <Card stream={stream} />
-              </Grid>
-            ))}
+    <>
+      {streams.length > 0 && (
+        <Container maxWidth="lg">
+          <>
+            <Header count={streams.length} />
+            <Grid container direction="column" justify="center">
+              {streams.map((stream) => (
+                <Grid item key={stream?.publisher?.stream}>
+                  <Card stream={stream} />
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        </Container>
+      )}
+      {streams.length === 0 && (
+        <Grid
+          container
+          justify="center"
+          alignItems="center"
+          className={classes.nostreams}
+        >
+          <Grid item>
+            <Typography
+              align="center"
+              variant="h2"
+              className={classes.nostreamsText}
+            >
+              No streams availiable right now
+            </Typography>
           </Grid>
-        </>
+        </Grid>
       )}
-      {!streams && (
-        <Typography align="center">No streams availiable right now</Typography>
-      )}
-    </Container>
+    </>
   );
 }
