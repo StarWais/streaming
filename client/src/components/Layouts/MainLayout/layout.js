@@ -3,6 +3,7 @@ import styles from './styles';
 import { Container, Grid, Typography } from '@material-ui/core';
 import { StreamsContext } from '../../../context/StreamsContext';
 import Card from '../../VideoCard';
+import { httpServer } from '../../../utils/server';
 import Header from '../../Header';
 import axios from 'axios';
 
@@ -12,11 +13,7 @@ export default function Layout() {
   const [error, setError] = useState('');
   useEffect(() => {
     axios
-      .get(
-        `${process.env.REACT_APP_SERVER || 'http://localhost'}:${
-          process.env.REACT_APP_SERVER_PORT || '5000'
-        }/streams/info`
-      )
+      .get(`${httpServer}/streams/info`)
       .then((res) => {
         if (res.status === 200) {
           setStreams(res.data.streams);

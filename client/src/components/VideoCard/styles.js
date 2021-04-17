@@ -15,6 +15,13 @@ const styles = makeStyles({
   wrapper: {
     position: 'relative',
   },
+  streamName: {
+    position: 'absolute',
+    top: '1rem',
+    right: '1rem',
+    color: 'white',
+    fontWeight: 'bold',
+  },
   iconWrapper: {
     position: 'absolute',
     top: '33%',
@@ -26,6 +33,10 @@ const styles = makeStyles({
     color: 'white',
     height: '40px',
     width: '40px',
+    transition: 'all 0.3s ease-out',
+    '&:hover': {
+      transform: 'scale(1.15)',
+    },
   },
 });
 

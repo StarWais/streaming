@@ -1,8 +1,10 @@
 import { Grid, Paper, Button, TextField, Typography } from '@material-ui/core';
 import io from 'socket.io-client';
 import { useEffect, useState, useRef } from 'react';
+import styles from './styles';
 
 export default function Chat({ id }) {
+  const classes = styles();
   const [userName, setUserName] = useState(
     localStorage.getItem('username') || ''
   );
@@ -57,12 +59,18 @@ export default function Chat({ id }) {
     };
   }, [id]);
   return (
-    <Grid container direction="column">
+    <Grid
+      container
+      direction="column"
+      className={classes.chatWrapper}
+      alignItems="center"
+    >
       {!userName && (
         <Grid item>
           <Button
             variant="contained"
             onClick={() => setOpenTextField(!openTextField)}
+            className={classes.chooseButton}
           >
             Choose username
           </Button>

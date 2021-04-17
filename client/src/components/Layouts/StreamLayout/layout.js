@@ -3,6 +3,7 @@ import { Grid, Container, Typography } from '@material-ui/core';
 import StreamPage from '../../StreamPage';
 import styles from './styles';
 import Chat from '../../Chat';
+import { mediaServer } from '../../../utils/server';
 
 export default function Layout() {
   const { id } = useParams();
@@ -16,12 +17,11 @@ export default function Layout() {
       <Grid container justify="space-between" direction="row">
         <Grid item lg={7}>
           <StreamPage
-            streamLink={`${
-              process.env.REACT_APP_SERVER || 'http://localhost'
-            }:${process.env.REACT_APP_MEDIA_PORT || '8000'}/live/${id}.flv`}
+            streamLink={`${mediaServer}/live/${id}.flv`}
+            id={id}
           ></StreamPage>
         </Grid>
-        <Grid item lg={4}>
+        <Grid item lg={4} className={classes.chatWrapper}>
           <Chat id={id} />
         </Grid>
       </Grid>

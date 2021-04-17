@@ -4,6 +4,7 @@ import { Paper, Grid, Typography, IconButton } from '@material-ui/core';
 import { PlayArrow } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
 import Moment from 'react-moment';
+import StreamViewers from '../StreamViewers';
 
 export default function Card({ stream }) {
   const [ago, setAgo] = useState(null);
@@ -20,6 +21,8 @@ export default function Card({ stream }) {
     <Paper className={classes.paper}>
       <Grid container direction="column" justify="center" alignItems="center">
         <Grid item className={classes.wrapper}>
+          <StreamViewers id={id} color="white" toCard={true} />
+          <Typography className={classes.streamName}>{id}</Typography>
           <img
             src={`data:image/jpeg;base64,${thumbnail}`}
             alt="stream_preview"

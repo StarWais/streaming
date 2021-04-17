@@ -5,6 +5,9 @@ const styles = makeStyles({
     fontWeight: 'bold',
     color: 'darkgray',
   },
+  chatWrapper: {
+    background: 'linear-gradient(to left,#CACAC8, #93999D);',
+  },
 });
 
 export default styles;
