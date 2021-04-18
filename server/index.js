@@ -47,12 +47,12 @@ io.on('connection', (socket) => {
         chat.save();
       }
       io.in(cid).emit('updateUsers', chat.users);
-      io.in(cid).emit('update', chat.messages);
+      io.in(cid).emit('userEnteredChat', username);
     });
   });
   socket.on('getMessagesAndUsers', (data) => {
     Chat.findOne({ chatId: cid }, (err, chat) => {
-      io.in(cid).emit('update', chat.messages);
+      io.in(cid).emit('getMessages', chat.messages);
       io.in(cid).emit('updateUsers', chat.users);
     });
   });
@@ -63,14 +63,20 @@ io.on('connection', (socket) => {
       chat.users = chat.users.filter((user) => user !== username);
       chat.save();
       io.in(cid).emit('updateUsers', chat.users);
+      io.in(cid).emit('userLeftChat', username);
     });
   });
   socket.on('sendMessage', (data) => {
     const { username, message } = data;
     Chat.findOne({ chatId: cid }, (err, chat) => {
-      chat.messages.push(new Message({ message, username }));
+      const newMessage = new Message({
+        message,
+        username,
+        createdAt: Date.now(),
+      });
+      chat.messages.push(newMessage);
       chat.save();
-      io.in(cid).emit('update', chat.messages);
+      io.in(cid).emit('update', newMessage);
     });
   });
   socket.on('disconnect', () => {

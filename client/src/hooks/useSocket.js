@@ -27,12 +27,30 @@ const useSocket = (serverUrl, chatId) => {
       query: `id=${chatId}`,
     });
     socketRef.current.emit('getMessagesAndUsers');
-    socketRef.current.on('update', (msgs) => {
-      setMessages(msgs);
+    socketRef.current.on('update', (msg) => {
+      const newMessage = { type: 'message', body: msg };
+      setMessages([...messages, newMessage]);
     });
     socketRef.current.on('updateUsers', (data) => {
-      console.dir(data);
       setUsers(data);
+    });
+    socketRef.current.on('getMessages', (data) => {
+      setMessages(data.map((message) => ({ type: 'message', body: message })));
+    });
+    socketRef.current.on('userEnteredChat', (data) => {
+      const newMessage = {
+        type: 'alert',
+        body: `User ${data} entered chat`,
+      };
+
+      setMessages([...messages, newMessage]);
+    });
+    socketRef.current.on('userLeftChat', (data) => {
+      const newMessage = {
+        type: 'alert',
+        body: `User ${data} left chat`,
+      };
+      setMessages([...messages, newMessage]);
     });
     return () => {
       if (loggedIn) {
@@ -48,6 +66,7 @@ const useSocket = (serverUrl, chatId) => {
     socketRef,
     enterChat,
     leaveChat,
+    alert,
   };
 };
 

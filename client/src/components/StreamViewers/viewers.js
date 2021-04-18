@@ -12,7 +12,11 @@ export default function Viewers({ id, color, toCard = false }) {
     const updateViewers = setInterval(() => {
       axios
         .get(`${httpServer}/streams/getViewers?id=${id}`)
-        .then((res) => setViewers(res.data.count));
+        .then((res) => setViewers(res.data.count))
+        .catch((err) => {
+          console.log(err.message);
+          setViewers(0);
+        });
     }, 3000);
     return () => clearTimeout(updateViewers);
   }, [id]);

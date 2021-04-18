@@ -15,7 +15,7 @@ function App() {
               <Route path="/" exact>
                 <MainLayout />
               </Route>
-              <Route path="/streams/:id">
+              <Route path="/streams/:id" exact>
                 <StreamLayout />
               </Route>
             </StreamsProvider>

@@ -6,7 +6,7 @@ const styles = makeStyles({
     color: 'darkgray',
   },
   chatWrapper: {
-    background: 'linear-gradient(to left,#CACAC8, #93999D);',
+    background: '#E9EFEF',
   },
 });
 

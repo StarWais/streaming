@@ -1,9 +1,23 @@
-import { Grid, Paper, Button, TextField, Typography } from '@material-ui/core';
+import {
+  Grid,
+  IconButton,
+  Button,
+  TextField,
+  Typography,
+  Input,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+} from '@material-ui/core';
 import { useEffect, useState } from 'react';
+import SendIcon from '@material-ui/icons/Send';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import styles from './styles';
 import useSocket from '../../hooks/useSocket';
 import useUser from '../../hooks/useUser';
 import { httpServer } from '../../utils/server';
+import Message from './Message';
 
 export default function Chat({ id }) {
   const classes = styles();
@@ -12,13 +26,14 @@ export default function Chat({ id }) {
     httpServer,
     id
   );
-  const [openTextField, setOpenTextField] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [textFieldValue, setTextFieldValue] = useState('');
   const [messageValue, setMessageValue] = useState('');
   const helper = (count) => +count.toString().slice(-1) !== 1;
   const handleUserNameChange = () => {
-    setOpenTextField(false);
+    setOpenDialog(false);
     logIn(textFieldValue);
+    setTextFieldValue('');
   };
   useEffect(() => {
     if (loggedIn) {
@@ -26,115 +41,172 @@ export default function Chat({ id }) {
     }
   }, [loggedIn]);
   return (
-    <Grid
-      container
-      direction="column"
-      className={classes.chatWrapper}
-      alignItems="center"
-    >
-      {!loggedIn && (
-        <Grid item>
-          <Button
-            variant="contained"
-            onClick={() => setOpenTextField(!openTextField)}
-            className={classes.chooseButton}
-          >
-            Choose username
-          </Button>
+    <>
+      <Grid
+        container
+        direction="column"
+        className={classes.chatWrapper}
+        alignItems="center"
+      >
+        <Grid
+          item
+          container
+          className={classes.header}
+          justify={loggedIn ? 'space-between' : 'center'}
+          alignItems="center"
+        >
+          {loggedIn && (
+            <>
+              <Grid
+                item
+                container
+                className={classes.userInfo}
+                alignItems="center"
+              >
+                <Grid item>
+                  <AccountCircleIcon classes={{ root: classes.userIcon }} />
+                </Grid>
+                <Grid item>
+                  <Typography
+                    variant="body2"
+                    align="center"
+                    className={classes.username}
+                  >
+                    {userName}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid item>
+                <IconButton
+                  className={classes.userIcon}
+                  onClick={() => {
+                    leaveChat();
+                    logOut();
+                  }}
+                >
+                  <ExitToAppIcon />
+                </IconButton>
+              </Grid>
+            </>
+          )}
+          {!loggedIn && (
+            <Grid item>
+              <Button
+                onClick={() => setOpenDialog(!openDialog)}
+                className={classes.chooseButton}
+              >
+                Choose username
+              </Button>
+            </Grid>
+          )}
         </Grid>
-      )}
-      {loggedIn && (
-        <Grid item container>
+        {/* {users.length > 0 && (
           <Grid item>
             <Typography variant="h6" align="center">
-              Logged in as {userName}
+              There {helper(users.length) ? 'are' : 'is'} {users.length} user
+              {helper(users.length) ? 's' : ''} in chat
             </Typography>
           </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              onClick={() => {
-                leaveChat();
-                logOut();
-              }}
-            >
-              Log out
-            </Button>
-          </Grid>
-        </Grid>
-      )}
-      {users.length > 0 && (
-        <Grid item>
-          <Typography variant="h6" align="center">
-            There {helper(users.length) ? 'are' : 'is'} {users.length} user
-            {helper(users.length) ? 's' : ''} in chat
-          </Typography>
-        </Grid>
-      )}
-      {openTextField && (
-        <Grid item container direction="row">
-          <Grid item>
-            <TextField
-              value={textFieldValue}
-              onChange={(e) => {
-                // if (e.target.value < 10) {
-                setTextFieldValue(e.target.value);
-                // }
-              }}
-            >
-              Choose username
-            </TextField>
-          </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              onClick={handleUserNameChange}
-              disabled={!textFieldValue || textFieldValue.includes(' ')}
-            >
-              Change username
-            </Button>
-          </Grid>
-        </Grid>
-      )}
-      {messages.length === 0 && (
-        <Grid item>
-          <Typography variant="h5" align="center">
-            No messages availiable
-          </Typography>
-        </Grid>
-      )}
-      {messages.length > 0 && (
-        <Grid item container direction="column">
-          {messages.map((message) => (
-            <Grid item key={message._id}>
-              {message.username} : {message.message}
+        )} */}
+
+        <Grid
+          item
+          container
+          direction="column"
+          wrap="nowrap"
+          justify={messages.length === 0 ? 'center' : 'flex-start'}
+          className={classes.messages}
+        >
+          {messages.length > 0 &&
+            messages.map((message, index) => (
+              <Grid item key={index}>
+                <Message
+                  message={message}
+                  self={message?.body?.username === userName}
+                />
+              </Grid>
+            ))}
+          {messages.length === 0 && (
+            <Grid item>
+              <Typography variant="h5" align="center">
+                No messages availiable
+              </Typography>
             </Grid>
-          ))}
+          )}
         </Grid>
-      )}
-      {loggedIn && (
-        <Grid item container direction="row">
-          <Grid item>
-            <TextField
-              value={messageValue}
-              onChange={(e) => {
-                setMessageValue(e.target.value);
-              }}
-            >
-              Type message
-            </TextField>
+
+        {loggedIn && (
+          <Grid
+            item
+            container
+            justify="space-between"
+            alignItems="center"
+            className={classes.sendMessageWrapper}
+          >
+            <Grid item>
+              <Input
+                id="messagefield"
+                type="text"
+                disableUnderline
+                value={messageValue}
+                placeholder="Type your message..."
+                onChange={(e) => {
+                  e.target.value.length < 30 && setMessageValue(e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid item className={classes.sendWrapper}>
+              <IconButton
+                disabled={messageValue === ' ' || !messageValue}
+                onClick={() => {
+                  sendMessage(messageValue);
+                  setMessageValue('');
+                }}
+              >
+                <SendIcon classes={{ root: classes.sendMessage }} />
+              </IconButton>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              onClick={() => sendMessage(messageValue)}
-              disabled={messageValue === '' || messageValue === ' '}
-            >
-              Send message
-            </Button>
+        )}
+      </Grid>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        classes={{ root: classes.dialog }}
+      >
+        <DialogTitle align="center">Choose your username</DialogTitle>
+        <DialogContent>
+          <Grid
+            item
+            container
+            direction="row"
+            justify="space-between"
+            align="center"
+          >
+            <Grid item className={classes.usernameInputWrapper}>
+              <TextField
+                value={textFieldValue}
+                placeholder="Type your username..."
+                onChange={(e) => {
+                  if (e.target.value.length < 10) {
+                    setTextFieldValue(e.target.value);
+                  }
+                }}
+              >
+                Choose username
+              </TextField>
+            </Grid>
+            <Grid item>
+              <IconButton
+                onClick={handleUserNameChange}
+                disabled={!textFieldValue || textFieldValue.includes(' ')}
+              >
+                <SendIcon />
+              </IconButton>
+            </Grid>
           </Grid>
-        </Grid>
-      )}
-    </Grid>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
