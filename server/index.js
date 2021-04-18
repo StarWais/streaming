@@ -39,9 +39,9 @@ io.on('connection', (socket) => {
   console.log('user connected');
   socket.join(cid);
   socket.on('enterChat', (data) => {
-    console.log('user enterded chat', cid);
-    const { chatId, username } = data;
-    Chat.findOne({ chatId }, (err, chat) => {
+    const { username } = data;
+    console.log(`User ${username} entered stream's ${cid} chat`);
+    Chat.findOne({ chatId: cid }, (err, chat) => {
       if (!chat.users.find((user) => user === username)) {
         chat.users.push(username);
         chat.save();
@@ -57,24 +57,24 @@ io.on('connection', (socket) => {
     });
   });
   socket.on('leaveChat', (data) => {
-    console.log('user left chat', cid);
-    const { chatId, username } = data;
-    Chat.findOne({ chatId }, (err, chat) => {
+    const { username } = data;
+    console.log(`User ${username} left stream's ${cid} chat`);
+    Chat.findOne({ chatId: cid }, (err, chat) => {
       chat.users = chat.users.filter((user) => user !== username);
       chat.save();
       io.in(cid).emit('updateUsers', chat.users);
     });
   });
   socket.on('sendMessage', (data) => {
-    const { chatId, username, message } = data;
-    Chat.findOne({ chatId }, (err, chat) => {
+    const { username, message } = data;
+    Chat.findOne({ chatId: cid }, (err, chat) => {
       chat.messages.push(new Message({ message, username }));
       chat.save();
       io.in(cid).emit('update', chat.messages);
     });
   });
   socket.on('disconnect', () => {
-    console.log('user disconnected');
+    console.log('User disconnected');
   });
 });
 
@@ -95,5 +95,9 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+mongoose.connection.on('error', (err) => {
+  console.log(`DB connection error: ${err.message}`);
+});
 
 mongoose.set('useFindAndModify', false);

@@ -1,63 +1,30 @@
 import { Grid, Paper, Button, TextField, Typography } from '@material-ui/core';
-import io from 'socket.io-client';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './styles';
+import useSocket from '../../hooks/useSocket';
+import useUser from '../../hooks/useUser';
+import { httpServer } from '../../utils/server';
 
 export default function Chat({ id }) {
   const classes = styles();
-  const [userName, setUserName] = useState(
-    localStorage.getItem('username') || ''
+  const { logIn, logOut, loggedIn, userName } = useUser();
+  const { sendMessage, users, messages, enterChat, leaveChat } = useSocket(
+    httpServer,
+    id
   );
-  const socketRef = useRef(null);
-  const [messages, setMessages] = useState([]);
   const [openTextField, setOpenTextField] = useState(false);
   const [textFieldValue, setTextFieldValue] = useState('');
   const [messageValue, setMessageValue] = useState('');
-  const [users, setUsers] = useState([]);
   const helper = (count) => +count.toString().slice(-1) !== 1;
   const handleUserNameChange = () => {
-    setUserName(textFieldValue);
-    localStorage.setItem('username', textFieldValue);
     setOpenTextField(false);
-    socketRef.current.emit('enterChat', {
-      chatId: id,
-      username: textFieldValue,
-    });
-  };
-  const handleSendMessage = () => {
-    socketRef.current.emit('sendMessage', {
-      chatId: id,
-      username: userName,
-      message: messageValue,
-    });
+    logIn(textFieldValue);
   };
   useEffect(() => {
-    socketRef.current = io('http://localhost:5000', {
-      transport: ['websocket'],
-      query: `id=${id}`,
-    });
-
-    if (userName) {
-      socketRef.current.emit('enterChat', { chatId: id, username: userName });
+    if (loggedIn) {
+      enterChat();
     }
-
-    socketRef.current.emit('getMessagesAndUsers', { chatId: id });
-
-    socketRef.current.on('update', (msgs) => {
-      setMessages(msgs);
-    });
-    socketRef.current.on('updateUsers', (data) => {
-      console.dir(data);
-      setUsers(data);
-    });
-    return () => {
-      if (userName) {
-        socketRef.current.emit('leaveChat', { chatId: id, username: userName });
-      }
-
-      socketRef.current.disconnect();
-    };
-  }, [id]);
+  }, [loggedIn]);
   return (
     <Grid
       container
@@ -65,7 +32,7 @@ export default function Chat({ id }) {
       className={classes.chatWrapper}
       alignItems="center"
     >
-      {!userName && (
+      {!loggedIn && (
         <Grid item>
           <Button
             variant="contained"
@@ -76,7 +43,7 @@ export default function Chat({ id }) {
           </Button>
         </Grid>
       )}
-      {userName && (
+      {loggedIn && (
         <Grid item container>
           <Grid item>
             <Typography variant="h6" align="center">
@@ -87,12 +54,8 @@ export default function Chat({ id }) {
             <Button
               variant="contained"
               onClick={() => {
-                socketRef.current.emit('leaveChat', {
-                  chatId: id,
-                  username: userName,
-                });
-                setUserName('');
-                localStorage.removeItem('username');
+                leaveChat();
+                logOut();
               }}
             >
               Log out
@@ -123,7 +86,11 @@ export default function Chat({ id }) {
             </TextField>
           </Grid>
           <Grid item>
-            <Button variant="contained" onClick={handleUserNameChange}>
+            <Button
+              variant="contained"
+              onClick={handleUserNameChange}
+              disabled={!textFieldValue || textFieldValue.includes(' ')}
+            >
               Change username
             </Button>
           </Grid>
@@ -145,7 +112,7 @@ export default function Chat({ id }) {
           ))}
         </Grid>
       )}
-      {userName && (
+      {loggedIn && (
         <Grid item container direction="row">
           <Grid item>
             <TextField
@@ -160,7 +127,7 @@ export default function Chat({ id }) {
           <Grid item>
             <Button
               variant="contained"
-              onClick={handleSendMessage}
+              onClick={() => sendMessage(messageValue)}
               disabled={messageValue === '' || messageValue === ' '}
             >
               Send message
