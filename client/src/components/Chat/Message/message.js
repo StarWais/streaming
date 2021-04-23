@@ -14,7 +14,12 @@ export default function Message({ message, self = false }) {
               {message.body.message}
             </Typography>
           </Grid>
-          <Grid item container justify={self ? 'flex-end' : 'space-between'}>
+          <Grid
+            item
+            container
+            justify={self ? 'flex-end' : 'space-between'}
+            className={classes.info}
+          >
             {!self && (
               <Grid item>
                 <Typography variant="body2" className={classes.sender}>

@@ -14,15 +14,15 @@ const styles = makeStyles({
     right: '1rem',
   },
   viewersText: (props) => ({
-    fontSize: props.toCard ? '0.8rem' : '1.25rem',
+    fontSize: props.toCard ? '0.8rem' : '1.1rem',
     fontWeight: 'bold',
     color: props.toCard ? 'white' : 'black',
   }),
   icon: (props) => ({
     display: 'block',
     color: props.toCard ? 'white' : 'black',
-    height: props.toCard ? '0.9rem' : '2rem',
-    width: props.toCard ? '0.9rem' : '2rem',
+    height: props.toCard ? '0.9rem' : '1.5rem',
+    width: props.toCard ? '0.9rem' : '1.5rem',
   }),
 });
 

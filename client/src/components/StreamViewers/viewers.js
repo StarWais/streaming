@@ -32,7 +32,7 @@ export default function Viewers({ id, color, toCard = false }) {
       }
     >
       <Grid item container justify="center" alignItems="center">
-        <VisibilityIcon className={classes.icon} />
+        <VisibilityIcon classes={{ root: classes.icon }} />
       </Grid>
       <Grid item>
         <Typography variant="body2" className={classes.viewersText}>

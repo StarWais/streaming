@@ -22,10 +22,14 @@ import Message from './Message';
 export default function Chat({ id }) {
   const classes = styles();
   const { logIn, logOut, loggedIn, userName } = useUser();
-  const { sendMessage, users, messages, enterChat, leaveChat } = useSocket(
-    httpServer,
-    id
-  );
+  const {
+    sendMessage,
+    users,
+    messages,
+    enterChat,
+    leaveChat,
+    socketRef,
+  } = useSocket(httpServer, id);
   const [openDialog, setOpenDialog] = useState(false);
   const [textFieldValue, setTextFieldValue] = useState('');
   const [messageValue, setMessageValue] = useState('');
@@ -39,6 +43,12 @@ export default function Chat({ id }) {
     if (loggedIn) {
       enterChat();
     }
+    return () => {
+      if (loggedIn) {
+        leaveChat();
+      }
+      socketRef.current.disconnect();
+    };
   }, [loggedIn]);
   return (
     <>
@@ -100,14 +110,14 @@ export default function Chat({ id }) {
             </Grid>
           )}
         </Grid>
-        {/* {users.length > 0 && (
+        {users.length > 0 && (
           <Grid item>
             <Typography variant="h6" align="center">
               There {helper(users.length) ? 'are' : 'is'} {users.length} user
               {helper(users.length) ? 's' : ''} in chat
             </Typography>
           </Grid>
-        )} */}
+        )}
 
         <Grid
           item

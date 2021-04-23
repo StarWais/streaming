@@ -20,7 +20,11 @@ export default function Layout() {
         }
       })
       .catch((err) => {
-        setError(err.response.data.error);
+        if (!err?.response?.data) {
+          setError(err.message);
+        } else {
+          setError(err.response.data.error);
+        }
       });
   }, [setStreams]);
   return (

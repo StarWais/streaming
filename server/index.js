@@ -45,9 +45,9 @@ io.on('connection', (socket) => {
       if (!chat.users.find((user) => user === username)) {
         chat.users.push(username);
         chat.save();
+        io.in(cid).emit('updateUsers', chat.users);
+        io.in(cid).emit('userEnteredChat', username);
       }
-      io.in(cid).emit('updateUsers', chat.users);
-      io.in(cid).emit('userEnteredChat', username);
     });
   });
   socket.on('getMessagesAndUsers', (data) => {

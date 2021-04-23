@@ -5,10 +5,9 @@ const styles = makeStyles({
     maxWidth: '10rem',
     borderRadius: '10px',
     marginLeft: props.self ? 'auto' : '0',
-    padding: '0.6rem',
-
+    padding: '0.6rem 0.6rem 0px 0.6rem',
+    position: 'relative',
     marginBottom: '0.8rem',
-
     background: props.self ? '#3172A8' : 'white',
   }),
   message: (props) => ({
@@ -21,6 +20,9 @@ const styles = makeStyles({
   },
   alert: {
     marginBottom: '1rem',
+  },
+  info: {
+    padding: '4px 4px 3px 4px !important',
   },
   date: (props) => ({
     color: props.self ? 'white' : 'darkgray',
